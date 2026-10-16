@@ -1,0 +1,18 @@
+{
+  "name": "blockworks",
+  "version": "0.1.0",
+  "description": "Crypto research and market data from Blockworks: search research, news and governance documents, and query asset, protocol and market datasets.",
+  "author": {
+    "name": "Blockworks",
+    "url": "https://blockworks.com"
+  },
+  "homepage": "https://docs.blockworks.com/mcp/overview",
+  "repository": "https://github.com/Blockworks-Projects/grok-plugin",
+  "license": "MIT",
+  "keywords": ["blockworks", "blockworks research", "blockworks data", "blockworks mcp", "blockworks crypto"],
+  "logo": "assets/logo.png",
+  "skills": "skills",
+  "commands": "commands",
+  "agents": "agents",
+  "mcpServers": "mcp.json"
+}

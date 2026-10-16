@@ -1,0 +1,19 @@
+{
+  "name": "blockworks",
+  "description": "Official Blockworks marketplace: crypto research and market data plugins powered by the Blockworks MCP server.",
+  "owner": {
+    "name": "Blockworks",
+    "url": "https://blockworks.com"
+  },
+  "plugins": [
+    {
+      "name": "blockworks",
+      "source": "./",
+      "description": "Crypto research and market data from Blockworks: search research, news and governance documents, and query asset, protocol and market datasets.",
+      "category": "productivity",
+      "homepage": "https://docs.blockworks.com/mcp/overview",
+      "keywords": ["blockworks", "blockworks research", "blockworks data", "blockworks mcp"],
+      "domains": ["blockworks.com", "app.blockworks.com", "docs.blockworks.com"]
+    }
+  ]
+}

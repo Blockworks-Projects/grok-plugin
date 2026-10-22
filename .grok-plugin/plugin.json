@@ -1,7 +1,7 @@
 {
   "name": "blockworks",
-  "version": "0.1.0",
-  "description": "Crypto research and market data from Blockworks: search research, news and governance documents, and query asset, protocol and market datasets.",
+  "version": "0.2.0",
+  "description": "Crypto research and market data from Blockworks: search research, news and governance documents, query asset, protocol and market datasets, read Blockworks' monitoring coverage of industry developments, and read your watchlists.",
   "author": {
     "name": "Blockworks",
     "url": "https://blockworks.com"

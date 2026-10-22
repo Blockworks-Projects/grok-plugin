@@ -17,7 +17,7 @@ The catalog lives in [xai-org/plugin-marketplace](https://github.com/xai-org/plu
    ```json
    {
      "name": "blockworks",
-     "description": "Crypto research and market data from Blockworks: search research, news and governance documents, and query asset, protocol and market datasets.",
+     "description": "Crypto research and market data from Blockworks: search research, news and governance documents, query asset, protocol and market datasets, read Blockworks' monitoring coverage of industry developments, and read your watchlists.",
      "category": "productivity",
      "source": {
        "source": "url",
@@ -56,11 +56,11 @@ Submit at [x.ai/bot/marketplace/submit-a-plugin](https://x.ai/bot/marketplace/su
 | Logotype URL | https://raw.githubusercontent.com/Blockworks-Projects/grok-plugin/main/assets/logo.png (1:1 PNG) |
 | Listing destination | Grok Bot and Cursor (and Grok, once it opens) |
 | MCP server URL or public GitHub repository | https://github.com/Blockworks-Projects/grok-plugin |
-| Brief description | Crypto research and market data from Blockworks: search research, news and governance documents, and query asset, protocol and market datasets. |
+| Brief description | Crypto research and market data from Blockworks: search research, news and governance documents, query asset, protocol and market datasets, read Blockworks' monitoring coverage of industry developments, and read your watchlists. |
 | Testing instructions | See below |
 
 Suggested testing instructions:
 
-> Create a Blockworks API key at https://app.blockworks.com/account/api. Install the plugin. On the first tool call a Blockworks sign-in page opens; paste the API key and submit. Then ask: "Show the top 10 assets by market cap today." The agent should call `tabular_catalog` and then `tabular_data` and return a table with dataset name and date. Then ask: "Show the daily price of ETH for the last 90 days." The agent should call `timeseries_catalog` and then `timeseries_data`. `search_documents` requires an Enterprise key with the `ai_toolkit_permission` permission; other datasets work with a free key where the catalog shows tier `public`.
+> Create a Blockworks API key at https://app.blockworks.com/account/api. Install the plugin. On the first tool call a Blockworks sign-in page opens; paste the API key and submit. Then ask: "Show the top 10 assets by market cap today." The agent should call `tabular_catalog` and then `tabular_data` and return a table with dataset name and date. Then ask: "Show the daily price of ETH for the last 90 days." The agent should call `timeseries_catalog` and then `timeseries_data`. `search_documents` requires an Enterprise key with the `ai_toolkit_permission` permission; other datasets work with a free key where the catalog shows tier `public`. The `monitoring_*` tools need an account entitled to the Blockworks monitoring product and return `FORBIDDEN` otherwise; `watchlists` returns the key owner's own watchlists.
 
 Submitting means agreeing to the publisher terms at cursor.com/marketplace-publisher-terms. Test the plugin locally and in-app before ticking the confirmation box.

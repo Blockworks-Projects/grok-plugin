@@ -30,25 +30,23 @@ The data tools are read-only. They do not trade, move funds or change any data. 
 | `watchlist_assets` | Reads the assets on one watchlist |
 | `submit_feedback` | Sends a report about a tool error, wrong or missing data, or a missing capability to Blockworks |
 
-## Get an API key
-
-You need a Blockworks API key to use the plugin. Create one at [app.blockworks.com/account/api](https://app.blockworks.com/account/api).
-
 ## Sign in
 
-The server uses OAuth, and your API key is the credential.
+You need a Blockworks account to use the plugin. Create one at [app.blockworks.com](https://app.blockworks.com).
+
+The server uses OAuth.
 
 1. The first time the agent calls a Blockworks tool, it opens a Blockworks sign-in page in your browser.
-2. Enter your Blockworks API key on that page and submit it.
-3. The page sends you back to the client. The client then sends your API key as the bearer token on each request to the server.
+2. Sign in with your Blockworks account. If you prefer, enter a Blockworks API key on that page instead. Create a key at [app.blockworks.com/account/api](https://app.blockworks.com/account/api).
+3. The page sends you back to the client. The client then sends a bearer token on each request to the server.
 
-The server gives the client a token that lasts 30 days. If you revoke your API key, the next tool call fails and the client asks you to sign in again.
+The server gives the client a token that lasts 30 days. If you sign out everywhere or revoke the API key you used, the next tool call fails and the client asks you to sign in again.
 
-**Known limit:** the sign-in page does not check your API key. If you enter a wrong key, sign-in still completes. The error appears at the first tool call as `UNAUTHORIZED: API key invalid or expired`. To fix it, disconnect the Blockworks server in your client, then sign in again with the correct key.
+**Known limit when signing in with an API key:** the sign-in page does not check the key. If you enter a wrong key, sign-in still completes. The error appears at the first tool call as `UNAUTHORIZED: API key invalid or expired`. To fix it, disconnect the Blockworks server in your client, then sign in again.
 
 ## Access tiers
 
-What you can read depends on the entitlements of your API key.
+What you can read depends on the entitlements of your Blockworks account, or of the API key if you signed in with one.
 
 - **`search_documents`** needs an Enterprise account with the `ai_toolkit_permission` API permission. It allows 30 requests per minute for each user.
 - **Monitoring**: the four `monitoring_*` tools read the Blockworks monitoring product, which an account is entitled to separately. Without that entitlement they return `FORBIDDEN`.
@@ -71,7 +69,7 @@ The catalogs list only the datasets that Blockworks publishes to its public API.
 
 | Error | Cause | Fix |
 | --- | --- | --- |
-| `UNAUTHORIZED: API key invalid or expired` | The key is wrong, revoked or expired | Disconnect the server in your client and sign in again with a valid key |
+| `UNAUTHORIZED: API key invalid or expired` | The key is wrong, revoked or expired, or the session ended | Disconnect the server in your client and sign in again |
 | `FORBIDDEN: this endpoint requires an Enterprise account with the ai_toolkit_permission API permission` | `search_documents` needs Enterprise access | Upgrade your plan, or use the dataset tools only |
 | `FORBIDDEN: your subscription tier does not grant access to this dataset` | The dataset's access tier is above your key's entitlements | Pick a dataset your tier allows. Check the tier in the catalog. |
 | `RATE_LIMITED: ...` | Too many requests in a short time | Wait, then try again |
@@ -80,7 +78,7 @@ The catalogs list only the datasets that Blockworks publishes to its public API.
 
 ## Data and privacy
 
-The plugin sends your questions and tool arguments only to the Blockworks MCP server at `mcp.blockworks.com`. It runs no local code, no hooks and no scripts. Your API key goes only to Blockworks. See the Blockworks [Terms](https://blockworks.com/terms) and [Privacy Policy](https://blockworks.com/privacy-policy).
+The plugin sends your questions and tool arguments only to the Blockworks MCP server at `mcp.blockworks.com`. It runs no local code, no hooks and no scripts. Your sign-in credentials go only to Blockworks. See the Blockworks [Terms](https://blockworks.com/terms) and [Privacy Policy](https://blockworks.com/privacy-policy).
 
 ## Install
 
@@ -98,7 +96,7 @@ This repository is also a marketplace of its own (`.grok-plugin/marketplace.json
 
 ### Grok Bot
 
-Open **Connect apps** in the Grok Bot sidebar, find **Blockworks** and sign in with your API key when prompted.
+Open **Connect apps** in the Grok Bot sidebar, find **Blockworks** and sign in with your Blockworks account when prompted.
 
 ### Cursor
 

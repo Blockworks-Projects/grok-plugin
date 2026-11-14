@@ -10,7 +10,7 @@
   "repository": "https://github.com/Blockworks-Projects/grok-plugin",
   "license": "MIT",
   "keywords": ["blockworks", "blockworks research", "blockworks data", "blockworks mcp", "blockworks crypto"],
-  "logo": "assets/logo.png",
+  "logo": "https://raw.githubusercontent.com/Blockworks-Projects/grok-plugin/main/assets/logo.png",
   "skills": "skills",
   "commands": "commands",
   "agents": "agents",

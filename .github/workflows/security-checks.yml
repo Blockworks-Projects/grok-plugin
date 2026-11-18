@@ -1,0 +1,54 @@
+# Secret scan on every pull request and every push to main: TruffleHog and gitleaks, as two checks.
+# This repository is public, so it cannot call the shared workflow in the private
+# Blockworks-Projects/workflows repository. This is a copy of its security-checks.yml;
+# keep the pins in step with it.
+
+name: Security checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # TruffleHog: a credential its provider confirms is live, or could not test.
+  secrets-verified:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: TruffleHog
+        uses: trufflesecurity/trufflehog@3bd2b5887eb0efb8fa18bfd1d296032924e4ffdc # v3.99.9
+        with:
+          version: 3.99.9@sha256:2ec535840f860aa27f11fee20222fb790326ecd66325c96bd49d02ec6af46eca # image; `latest` if unset
+          extra_args: --results=verified,unknown
+      - if: failure()
+        run: echo "TruffleHog found a secret. Rotate it first, then remove it." >> "$GITHUB_STEP_SUMMARY"
+
+  # gitleaks CLI: known key formats and high-entropy strings.
+  secrets-patterns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks
+        env:
+          GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          FROM: ${{ github.event.pull_request.base.sha || github.event.before }}
+          TO: ${{ github.event.pull_request.head.sha || github.event.after }}
+        run: |
+          # The event's commits, or the whole history when there is no usable range.
+          range=()
+          if [ -n "$(git rev-list -1 "$FROM..$TO" 2>/dev/null)" ]; then range=(--log-opts="$FROM..$TO"); fi
+          docker run --rm -v "$PWD:/repo" -w /repo "$GITLEAKS_IMAGE" git --redact --verbose --no-banner "${range[@]}" /repo
+      - if: failure()
+        run: echo "gitleaks found something that looks like a secret. Real - rotate it first, then remove it. False alarm - add its Fingerprint to .gitleaksignore." >> "$GITHUB_STEP_SUMMARY"

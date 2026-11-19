@@ -22,13 +22,15 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
-          persist-credentials: false
       - name: TruffleHog
+        id: scan
         uses: trufflesecurity/trufflehog@3bd2b5887eb0efb8fa18bfd1d296032924e4ffdc # v3.99.9
         with:
           version: 3.99.9@sha256:2ec535840f860aa27f11fee20222fb790326ecd66325c96bd49d02ec6af46eca # image; `latest` if unset
-          extra_args: --results=verified,unknown
-      - if: failure()
+          # --trust-local-git-config scans the checkout in place; by default TruffleHog copies the repository first.
+          extra_args: --results=verified,unknown --trust-local-git-config
+      - name: Explain the failure # named so a passing run does not list the message below as a step
+        if: failure() && steps.scan.outcome == 'failure'
         run: echo "TruffleHog found a secret. Rotate it first, then remove it." >> "$GITHUB_STEP_SUMMARY"
 
   # gitleaks CLI: known key formats and high-entropy strings.
@@ -39,8 +41,8 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
-          persist-credentials: false
       - name: gitleaks
+        id: scan
         env:
           GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
           FROM: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -49,6 +51,22 @@ jobs:
           # The event's commits, or the whole history when there is no usable range.
           range=()
           if [ -n "$(git rev-list -1 "$FROM..$TO" 2>/dev/null)" ]; then range=(--log-opts="$FROM..$TO"); fi
-          docker run --rm -v "$PWD:/repo" -w /repo "$GITLEAKS_IMAGE" git --redact --verbose --no-banner "${range[@]}" /repo
-      - if: failure()
+          # The report goes outside the checkout, into a directory the image's user can write to.
+          out="$RUNNER_TEMP/gitleaks"
+          install -d -m 777 "$out"
+          status=0
+          docker run --rm -v "$PWD:/repo" -v "$out:/out" -w /repo "$GITLEAKS_IMAGE" git --redact --verbose --no-banner \
+            --report-format json --report-path /out/findings.json "${range[@]}" /repo || status=$?
+          # One annotation per finding, which GitHub shows on that line in the pull request's "Files changed" tab.
+          if [ -s "$out/findings.json" ]; then
+            jq -r '
+              def msg: gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A");
+              def prop: msg | gsub(":"; "%3A") | gsub(","; "%2C");
+              .[] | "::error file=\(.File | prop),line=\(.StartLine),title=\("gitleaks: " + .RuleID | prop)::"
+                + ("Looks like a secret, added in commit \(.Commit[0:7]). Real: rotate it first, then remove it. False alarm: add this line to .gitleaksignore: \(.Fingerprint)" | msg)
+            ' "$out/findings.json" || echo "Could not turn the gitleaks report into annotations; the findings are in the log above."
+          fi
+          exit "$status"
+      - name: Explain the failure # named so a passing run does not list the message below as a step
+        if: failure() && steps.scan.outcome == 'failure'
         run: echo "gitleaks found something that looks like a secret. Real - rotate it first, then remove it. False alarm - add its Fingerprint to .gitleaksignore." >> "$GITHUB_STEP_SUMMARY"
